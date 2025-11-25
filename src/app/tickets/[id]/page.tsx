@@ -1,69 +1,16 @@
-// import { getTicketById } from '@/actions/ticket.actions';
-// import { logEvent } from '@/utils/sentry';
-// import Link from 'next/link';
-// import { notFound } from 'next/navigation';
-// import { getPriorityClass } from '@/utils/ui';
-// import CloseTicketButton from '@/components/CloseTicketButton';
-//
-// const TicketDetailsPage = async (props: {
-//   params: Promise<{ id: string }>;
-// }) => {
-//   const { id } = await props.params;
-//   const ticket = await getTicketById(id);
-//
-//   if (!ticket) {
-//     notFound();
-//   }
-//
-//   logEvent('Viewing ticket details', 'ticket', { ticketId: ticket.id }, 'info');
-//
-//   return (
-//     <div className='min-h-screen bg-blue-50 p-8'>
-//       <div className='max-w-2xl mx-auto bg-white rounded-lg shadow border border-gray-200 p-8 space-y-6'>
-//         <h1 className='text-3xl font-bold text-blue-600'>{ticket.subject}</h1>
-//
-//         <div className='text-gray-700'>
-//           <h2 className='text-lg font-semibold mb-2'>Description</h2>
-//           <p>{ticket.description}</p>
-//         </div>
-//
-//         <div className='text-gray-700'>
-//           <h2 className='text-lg font-semibold mb-2'>Priority</h2>
-//           <p className={getPriorityClass(ticket.priority)}>{ticket.priority}</p>
-//         </div>
-//
-//         <div className='text-gray-700'>
-//           <h2 className='text-lg font-semibold mb-2'>Created At</h2>
-//           <p>{new Date(ticket.createdAt).toLocaleString()}</p>
-//         </div>
-//
-//         <Link
-//           href='/tickets'
-//           className='inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition'
-//         >
-//           ← Back to Tickets
-//         </Link>
-//
-//         {ticket.status !== 'Closed' && (
-//           <CloseTicketButton
-//             ticketId={ticket.id}
-//             isClosed={ticket.status === 'Closed'}
-//           />
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-//
-// export default TicketDetailsPage;
-
-
 import { sql } from '@vercel/postgres';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CloseTicketButton from '@/components/CloseTicketButton';
 
-export default async function TicketPage({ params }) {
+// Add type for params
+interface TicketPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function TicketPage({ params }: TicketPageProps) {
   const { id } = await params;
   
   try {
@@ -74,7 +21,6 @@ export default async function TicketPage({ params }) {
       notFound();
     }
 
-    // Convert ticketId to number if needed, or adjust based on your ID type
     const ticketId = parseInt(ticket.id) || ticket.id;
     const isClosed = ticket.status === 'solved';
 
@@ -108,9 +54,9 @@ export default async function TicketPage({ params }) {
                   
                   {/* Priority Badge */}
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    ticket.priority === 'high' 
+                    ticket.priority === 'High' 
                       ? 'bg-red-100 text-red-800'
-                      : ticket.priority === 'medium' 
+                      : ticket.priority === 'Medium' 
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-green-100 text-green-800'
                   }`}>
@@ -145,11 +91,12 @@ export default async function TicketPage({ params }) {
     );
   } catch (error) {
     console.error('Error loading ticket:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return (
       <div className="min-h-screen bg-blue-50 p-8">
         <div className="max-w-3xl mx-auto">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <p>Error loading ticket: {error.message}</p>
+            <p>Error loading ticket: {errorMessage}</p>
           </div>
         </div>
       </div>

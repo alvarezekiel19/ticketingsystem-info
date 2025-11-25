@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/current-user';
 import { prisma } from '@/db/prisma';
 import { logEvent } from '@/utils/sentry';
 
-// Create New Ticket - Return success and let client handle redirect
+// Create new ticket
 export async function createTicket(
   prevState: { success: boolean; message: string },
   formData: FormData
