@@ -7,7 +7,7 @@ export default function SearchTickets({ initialQuery = '' }) {
   const router = useRouter();
   const timeoutRef = useRef(null);
 
-  const handleSearch = (term) => {
+  const handleSearch = (term: string) => {
     // Clear previous timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -28,7 +28,7 @@ export default function SearchTickets({ initialQuery = '' }) {
   return (
     <input
       type="text"
-      placeholder="Search tickets..."
+      placeholder="Search tickets by name or description..."
       defaultValue={initialQuery}
       onChange={(e) => handleSearch(e.target.value)}
       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
