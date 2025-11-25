@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/error-boundaries */
 import { sql } from "@vercel/postgres";
 import SearchTickets from "@/components/SearchTickets";
+
 interface TicketsPageProps {
   searchParams: Promise<{ query?: string }>;
 }
@@ -135,7 +136,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
                         Support Tickets
                     </h1>
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        <p>Error loading tickets: {error.message}</p>
+                        <p>Error loading tickets: {error instanceof Error ? error.message : String(error)}</p>
                     </div>
                 </div>
             </div>
