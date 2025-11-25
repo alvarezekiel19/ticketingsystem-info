@@ -50,16 +50,26 @@
 
 
 
-
 import Link from 'next/link';
 
-export default function TicketItem({ ticket }) {
+interface TicketItemProps {
+  ticket: {
+    id: string;
+    subject: string;
+    description: string;
+    priority: string;
+    status: string;
+    createdAt: string;
+  };
+}
+
+export default function TicketItem({ ticket }: TicketItemProps) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-lg font-semibold text-gray-800">
-            {ticket.name}
+            {ticket.subject}
           </h3>
           <p className="text-gray-600 mt-2">{ticket.description}</p>
           <div className="flex items-center mt-4 space-x-4">
@@ -75,7 +85,7 @@ export default function TicketItem({ ticket }) {
               {ticket.priority} priority
             </span>
             <span className="text-sm text-gray-500">
-              {new Date(ticket.created_at).toLocaleDateString()}
+              {new Date(ticket.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
