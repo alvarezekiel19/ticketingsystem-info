@@ -5,7 +5,7 @@ import { useRef } from 'react';
 
 export default function SearchTickets({ initialQuery = '' }) {
   const router = useRouter();
-  const timeoutRef = useRef(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSearch = (term: string) => {
     // Clear previous timeout
