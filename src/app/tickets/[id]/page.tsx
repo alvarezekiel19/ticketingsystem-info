@@ -12,7 +12,7 @@ interface TicketPageProps {
 
 export default async function TicketPage({ params }: TicketPageProps) {
   const { id } = await params;
-  
+
   try {
     const result = await sql`SELECT * FROM "Ticket" WHERE id = ${id}`;
     const ticket = result.rows[0];
@@ -51,7 +51,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
                   }`}>
                     {ticket.status === 'solved' ? '✅ Solved' : '🔧 Open'}
                   </span>
-                  
+
                   {/* Priority Badge */}
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     ticket.priority === 'High' 
@@ -64,7 +64,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
                   </span>
                 </div>
               </div>
-              
+
               {/* Close Ticket Button - Using your existing component */}
               <CloseTicketButton 
                 ticketId={ticketId} 
@@ -103,3 +103,4 @@ export default async function TicketPage({ params }: TicketPageProps) {
     );
   }
 }
+

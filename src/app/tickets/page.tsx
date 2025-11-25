@@ -1,8 +1,11 @@
 /* eslint-disable react-hooks/error-boundaries */
 import { sql } from "@vercel/postgres";
 import SearchTickets from "@/components/SearchTickets";
+interface TicketsPageProps {
+  searchParams: Promise<{ query?: string }>;
+}
 
-export default async function TicketsPage({ searchParams }) {
+export default async function TicketsPage({ searchParams }: TicketsPageProps) {
     const params = await searchParams;
     const query = params?.query || "";
 
