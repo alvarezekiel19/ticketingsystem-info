@@ -6,12 +6,14 @@ async function getTickets(query = '') {
     let tickets;
     
     if (query) {
+      // Search in ticket name and description
       tickets = await sql`
         SELECT * FROM tickets 
         WHERE name ILIKE ${`%${query}%`} OR description ILIKE ${`%${query}%`}
         ORDER BY created_at DESC
       `;
     } else {
+      // Get all tickets if no search query
       tickets = await sql`
         SELECT * FROM tickets 
         ORDER BY created_at DESC
@@ -25,17 +27,23 @@ async function getTickets(query = '') {
   }
 }
 
-export default async function TicketList({ query }) {
+interface TicketListProps {
+  query: string;
+}
+
+export default async function TicketList({ query }: TicketListProps) {
   const tickets = await getTickets(query);
 
   return (
     <div>
       {tickets.length === 0 ? (
-        <p className="text-center text-gray-600">
-          {query ? `No tickets found for "${query}"` : 'No Tickets Yet'}
-        </p>
+        <div className="text-center py-8">
+          <p className="text-gray-500">
+            {query ? `No tickets found for "${query}"` : 'No tickets found'}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4">
           {tickets.map((ticket) => (
             <TicketItem key={ticket.id} ticket={ticket} />
           ))}
