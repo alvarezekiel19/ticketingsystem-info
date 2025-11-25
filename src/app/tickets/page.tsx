@@ -1,33 +1,141 @@
-import { getTickets } from '@/actions/ticket.actions';
-import { getCurrentUser } from '@/lib/current-user';
-import { redirect } from 'next/navigation';
-import TicketItem from '@/components/TicketItem';
+/* eslint-disable react-hooks/error-boundaries */
+import { sql } from "@vercel/postgres";
+import SearchTickets from "@/components/SearchTickets";
 
-const TicketsPage = async () => {
-  const user = await getCurrentUser();
+export default async function TicketsPage({ searchParams }) {
+    const params = await searchParams;
+    const query = params?.query || "";
 
-  // if (!user) {
-  //   redirect('/login');
-  // }
+    try {
+        let tickets;
 
-  const tickets = await getTickets();
+        if (query) {
+            const allTickets =
+                await sql`SELECT * FROM "Ticket" ORDER BY "createdAt" DESC`;
+            tickets = allTickets.rows.filter((ticket) => {
+                // Search in multiple possible fields
+                const searchableText = [
+                    ticket.subject,
+                    ticket.name,
+                    ticket.description,
+                    ticket.content,
+                    ticket.body,
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
 
-  return (
-    <div className='min-h-screen bg-blue-50 p-8'>
-      <h1 className='text-3xl font-bold text-blue-600 mb-8 text-center'>
-        Support Tickets
-      </h1>
-      {tickets.length === 0 ? (
-        <p className='text-center text-gray-600'>No Tickets Yet</p>
-      ) : (
-        <div className='space-y-4 max-w-3xl mx-auto'>
-          {tickets.map((ticket) => (
-            <TicketItem key={ticket.id} ticket={ticket} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+                return searchableText.includes(query.toLowerCase());
+            });
+        } else {
+            const result =
+                await sql`SELECT * FROM "Ticket" ORDER BY "createdAt" DESC`;
+            tickets = result.rows;
+        }
 
-export default TicketsPage;
+        return (
+            <div className="min-h-screen bg-blue-50 p-8">
+                <div className="max-w-3xl mx-auto">
+                    <h1 className="text-3xl font-bold text-blue-600 mb-8 text-center">
+                        Support Tickets
+                    </h1>
+
+                    <div className="max-w-md mx-auto mb-8">
+                        <SearchTickets initialQuery={query} />
+                    </div>
+
+                    {tickets.length === 0 ? (
+                        <p className="text-center text-gray-600">
+                            {query
+                                ? `No tickets found for "${query}"`
+                                : "No Tickets Yet"}
+                        </p>
+                    ) : (
+                        // eslint-disable-next-line react-hooks/error-boundaries
+                        <div className="space-y-4">
+                            {tickets.map((ticket) => (
+                                <div
+                                    key={ticket.id}
+                                    className="bg-white rounded-lg shadow-md p-6"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-800">
+                                                {ticket.subject ||
+                                                    ticket.name ||
+                                                    "Untitled Ticket"}
+                                            </h3>
+                                            <p className="text-gray-600 mt-2">
+                                                {ticket.description ||
+                                                    ticket.content ||
+                                                    ticket.body ||
+                                                    "No description"}
+                                            </p>
+                                            <div className="flex items-center mt-4 space-x-4 flex-wrap">
+                                                {" "}
+                                                {/* Status Badge - Now in the info row */}{" "}
+                                                <span
+                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                        ticket.status ===
+                                                        "solved"
+                                                            ? "bg-green-100 text-green-800 border border-green-200"
+                                                            : "bg-blue-100 text-blue-800 border border-blue-200"
+                                                    }`}
+                                                >
+                                                    {" "}
+                                                    {ticket.status === "solved"
+                                                        ? "✅ Solved"
+                                                        : "🔧 Open"}{" "}
+                                                </span>{" "}
+                                                {/* Priority Badge */}{" "}
+                                                <span
+                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                                        ticket.priority ===
+                                                        "High"
+                                                            ? "bg-red-100 text-red-800"
+                                                            : ticket.priority ===
+                                                              "Medium"
+                                                            ? "bg-yellow-100 text-yellow-800"
+                                                            : "bg-green-100 text-green-800"
+                                                    }`}
+                                                >
+                                                    {" "}
+                                                    {ticket.priority} priority
+                                                </span>
+                                                <span className="text-sm text-gray-500">
+                                                    {new Date(
+                                                        ticket.createdAt
+                                                    ).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <a
+                                            href={`/tickets/${ticket.id}`}
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200"
+                                        >
+                                            View
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    } catch (error) {
+        console.error("Error in tickets page:", error);
+        return (
+            <div className="min-h-screen bg-blue-50 p-8">
+                <div className="max-w-3xl mx-auto">
+                    <h1 className="text-3xl font-bold text-blue-600 mb-8 text-center">
+                        Support Tickets
+                    </h1>
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <p>Error loading tickets: {error.message}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}

@@ -7,7 +7,7 @@ const Navbar = async () => {
   const user = await getCurrentUser();
 
   return (
-    <nav className='bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center'>
+    <nav className='sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center'>
       <div>
         <Link href='/' className='text-xl font-bold text-blue-600'>
             Informatics | Ticket System
