@@ -71,3 +71,10 @@ export async function removeAuthCookie() {
     logEvent('Failed to remove the auth cookie', 'auth', {}, 'error', error);
   }
 }
+
+export async function getCurrentUser() {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth-token')?.value;
+
+    if (!token) return null;
+}
