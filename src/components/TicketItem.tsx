@@ -53,49 +53,48 @@
 import Link from 'next/link';
 
 interface TicketItemProps {
-  ticket: {
-    id: string;
-    subject: string;
-    description: string;
-    priority: string;
-    status: string;
-    createdAt: string;
-  };
+    ticket: {
+        id: string;
+        subject: string;
+        description: string;
+        priority: string;
+        status: string;
+        createdAt: string;
+    };
 }
 
 export default function TicketItem({ ticket }: TicketItemProps) {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">
-            {ticket.subject}
-          </h3>
-          <p className="text-gray-600 mt-2">{ticket.description}</p>
-          <div className="flex items-center mt-4 space-x-4">
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                ticket.priority === 'high'
-                  ? 'bg-red-100 text-red-800'
-                  : ticket.priority === 'medium'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-green-100 text-green-800'
-              }`}
-            >
-              {ticket.priority} priority
-            </span>
-            <span className="text-sm text-gray-500">
-              {new Date(ticket.createdAt).toLocaleDateString()}
-            </span>
-          </div>
+    return (
+        <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-between items-start">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                        {ticket.subject}
+                    </h3>
+                    <p className="text-gray-600 mt-2">{ticket.description}</p>
+                    <div className="flex items-center mt-4 space-x-4">
+                        <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${ticket.priority === 'high'
+                                    ? 'bg-red-100 text-red-800'
+                                    : ticket.priority === 'medium'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-green-100 text-green-800'
+                                }`}
+                        >
+                            {ticket.priority} priority
+                        </span>
+                        <span className="text-sm text-gray-500">
+                            {new Date(ticket.createdAt).toLocaleDateString()}
+                        </span>
+                    </div>
+                </div>
+                <Link
+                    href={`/tickets/${ticket.id}`}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200"
+                >
+                    View
+                </Link>
+            </div>
         </div>
-        <Link
-          href={`/tickets/${ticket.id}`}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200"
-        >
-          View
-        </Link>
-      </div>
-    </div>
-  );
+    );
 }
