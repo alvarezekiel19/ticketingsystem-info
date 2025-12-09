@@ -13,7 +13,6 @@ export default async function TicketPage({ params }: TicketPageProps) {
     const { id } = await params;
 
     try {
-        // 1. Get the ticket
         const ticket = await prisma.ticket.findUnique({
             where: { id: parseInt(id) }
         });
@@ -22,7 +21,6 @@ export default async function TicketPage({ params }: TicketPageProps) {
             notFound();
         }
 
-        // 2. Get the user separately (more reliable)
         let user = null;
         if (ticket.userId) {
             user = await prisma.user.findUnique({
@@ -111,7 +109,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
                             </p>
                         </div>
 
-                        {/* User Information - SIMPLE AND GUARANTEED TO WORK */}
+                        {/* User Information */}
                         <div className="mt-8 pt-6 border-t border-gray-200">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Creator Info */}
@@ -175,7 +173,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
                             {!user && ticket.userId && (
                                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
                                     <p className="text-sm text-yellow-800">
-                                        ⚠️ Note: Could not find user details for this ticket.
+                                        Note: Could not find user details for this ticket.
                                     </p>
                                     <p className="text-xs text-yellow-600 mt-1">
                                         Associated User ID: {ticket.userId}
