@@ -96,7 +96,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
                             </div>
 
                             <CloseTicketButton
-                                ticketId={displayId}
+                                ticketId={ticket.id.toString()}
                                 isClosed={isClosed}
                             />
                         </div>
