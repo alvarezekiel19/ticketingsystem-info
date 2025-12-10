@@ -1,34 +1,36 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
-import { logoutUser } from '@/actions/auth.actions';
-import { toast } from 'sonner';
+import { signOut } from 'next-auth/react';
+import { useState } from 'react';
 
 const LogoutButton = () => {
-    const initialState = {
-        success: false,
-        message: '',
-    }
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [state, formAction] = useActionState(logoutUser, initialState);
+    const handleLogout = async () => {
+        setIsLoading(true);
+        try {
+            // Clear NextAuth session without automatic redirect
+            await signOut({
+                redirect: false
+            });
 
-    useEffect(() => {
-        if (state.success) {
-            toast.success('Logout Successful');
-        } else if (state.message) {
-            toast.error(state.message);
+            window.location.href = 'http://localhost:3000';
+
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Fallback redirect
+            window.location.href = 'http://localhost:3000';
         }
-    }, [state]);
+    };
 
     return (
-        <form action={formAction}>
-            <button
-                type='submit'
-                className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition'
-            >
-                Logout
-            </button>
-        </form>
+        <button
+            onClick={handleLogout}
+            disabled={isLoading}
+            className={`text-red-600 hover:text-red-800 hover:underline transition ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+            {isLoading ? 'Logging out...' : 'Logout'}
+        </button>
     );
 };
 

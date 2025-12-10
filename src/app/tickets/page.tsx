@@ -3,7 +3,7 @@ import { sql } from "@vercel/postgres";
 import SearchTickets from "@/components/SearchTickets";
 
 interface TicketsPageProps {
-  searchParams: Promise<{ query?: string }>;
+    searchParams: Promise<{ query?: string }>;
 }
 
 export default async function TicketsPage({ searchParams }: TicketsPageProps) {
@@ -79,12 +79,11 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
                                                 {" "}
                                                 {/* Status Badge - Now in the info row */}{" "}
                                                 <span
-                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                        ticket.status ===
+                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${ticket.status ===
                                                         "solved"
-                                                            ? "bg-green-100 text-green-800 border border-green-200"
-                                                            : "bg-blue-100 text-blue-800 border border-blue-200"
-                                                    }`}
+                                                        ? "bg-green-100 text-green-800 border border-green-200"
+                                                        : "bg-blue-100 text-blue-800 border border-blue-200"
+                                                        }`}
                                                 >
                                                     {" "}
                                                     {ticket.status === "solved"
@@ -93,15 +92,14 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
                                                 </span>{" "}
                                                 {/* Priority Badge */}{" "}
                                                 <span
-                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                        ticket.priority ===
+                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${ticket.priority ===
                                                         "High"
-                                                            ? "bg-red-100 text-red-800"
-                                                            : ticket.priority ===
-                                                              "Medium"
+                                                        ? "bg-red-100 text-red-800"
+                                                        : ticket.priority ===
+                                                            "Medium"
                                                             ? "bg-yellow-100 text-yellow-800"
                                                             : "bg-green-100 text-green-800"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {" "}
                                                     {ticket.priority} priority

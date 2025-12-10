@@ -1,10 +1,11 @@
-import Link from 'next/link';
-import { getCurrentUser } from '@/lib/current-user';
-import LogoutButton from './LogoutButton';
-import logo from '@/assets/images/images.png';
+'use client';
 
-const Navbar = async () => {
-    const user = await getCurrentUser();
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import LogoutButton from './LogoutButton';
+
+const Navbar = () => {
+    const { data: session } = useSession();
 
     return (
         <nav className='sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center'>
@@ -14,7 +15,7 @@ const Navbar = async () => {
                 </Link>
             </div>
             <div className='flex items-center space-x-4'>
-                {user ? (
+                {session ? (
                     <>
                         <Link
                             href='/tickets/new'
@@ -28,6 +29,17 @@ const Navbar = async () => {
                         >
                             My Tickets
                         </Link>
+
+                        {/* Admin Dashboard Link */}
+                        {(session.user as any)?.role === 'ADMIN' && (
+                            <Link
+                                href="/admin/dashboard"
+                                className="text-gray-700 hover:text-blue-600 hover:underline transition"
+                            >
+                                Admin Dashboard
+                            </Link>
+                        )}
+
                         <LogoutButton />
                     </>
                 ) : (

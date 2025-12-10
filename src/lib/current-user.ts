@@ -1,25 +1,23 @@
-import { verifyAuthToken, getAuthCookie } from './auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/db/prisma';
-
-type AuthPayload = {
-    userId: string;
-};
 
 export async function getCurrentUser() {
     try {
-        const token = await getAuthCookie();
-        if (!token) return null;
+        const session = await getServerSession(authOptions);
 
-        const payload = (await verifyAuthToken(token)) as AuthPayload;
-
-        if (!payload?.userId) return null;
+        if (!session?.user?.id) {
+            return null;
+        }
 
         const user = await prisma.user.findUnique({
-            where: { id: payload.userId },
+            where: { id: session.user.id },
             select: {
                 id: true,
                 email: true,
                 name: true,
+                role: true,
+                isActive: true,
             },
         });
 

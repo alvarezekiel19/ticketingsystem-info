@@ -9,6 +9,7 @@ type ResponseResult = {
     message: string;
 };
 
+// Register new user - ONLY creates user, doesn't login
 export async function registerUser(
     prevState: ResponseResult,
     formData: FormData
@@ -45,15 +46,17 @@ export async function registerUser(
             return { success: false, message: 'User already exists' };
         }
 
+        // hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // create user WITH ROLE AND ISACTIVE
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
-                role: 'USER',
-                isActive: false,
+                role: 'USER',          // Default role
+                isActive: false,       // Needs admin approval
             },
         });
 
@@ -83,3 +86,5 @@ export async function registerUser(
     }
 }
 
+// REMOVED: loginUser function - NextAuth handles login
+// REMOVED: logoutUser function - NextAuth handles logout
