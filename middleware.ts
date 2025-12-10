@@ -4,24 +4,28 @@ import { NextResponse } from 'next/server';
 export default withAuth(
     function middleware(req) {
         const token = req.nextauth.token;
+        const url = req.nextUrl;
 
-        // If trying to access tickets without proper approval
-        if (req.nextUrl.pathname.startsWith('/tickets')) {
-            // Check if user is authenticated
+        // Protect ticket routes
+        if (url.pathname.startsWith('/tickets')) {
             if (!token) {
-                return NextResponse.redirect(new URL('/login', req.url));
+                // Use relative path for Vercel
+                url.pathname = '/login';
+                return NextResponse.redirect(url);
             }
 
             // Check if regular user is approved
             if (token.role === 'USER' && !token.isActive) {
-                return NextResponse.redirect(new URL('/pending-approval', req.url));
+                url.pathname = '/pending-approval';
+                return NextResponse.redirect(url);
             }
         }
 
-        // Check admin routes
-        if (req.nextUrl.pathname.startsWith('/admin')) {
+        // Protect admin routes
+        if (url.pathname.startsWith('/admin')) {
             if (!token || token.role !== 'ADMIN') {
-                return NextResponse.redirect(new URL('/tickets', req.url));
+                url.pathname = '/tickets';
+                return NextResponse.redirect(url);
             }
         }
 
