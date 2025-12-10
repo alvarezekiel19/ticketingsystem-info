@@ -9,17 +9,19 @@ const LogoutButton = () => {
     const handleLogout = async () => {
         setIsLoading(true);
         try {
-            // Clear NextAuth session without automatic redirect
+            // Clear NextAuth session
             await signOut({
                 redirect: false
             });
 
-            window.location.href = 'http://localhost:3000';
+            // Use window.location.origin for dynamic URL
+            // This works for both localhost and production
+            window.location.href = `${window.location.origin}/`;
 
         } catch (error) {
             console.error('Logout error:', error);
-            // Fallback redirect
-            window.location.href = 'http://localhost:3000';
+            // Fallback to current origin
+            window.location.href = `${window.location.origin}/`;
         }
     };
 
