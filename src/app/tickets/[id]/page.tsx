@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CloseTicketButton from '@/components/CloseTicketButton';
 import { prisma } from '@/db/prisma';
+import { formatToPHTime } from '@/lib/timezone';
 
 interface TicketPageProps {
     params: {
@@ -32,13 +33,8 @@ export default async function TicketPage({ params }: TicketPageProps) {
             });
         }
 
-        console.log('Ticket Data:', {
-            ticketId: ticket.id,
-            ticketUserId: ticket.userId,
-            userFound: !!user,
-            userName: user?.name,
-            userEmail: user?.email
-        });
+        const createdPH = formatToPHTime(ticket.createdAt);
+        const updatedPH = ticket.updatedAt ? formatToPHTime(ticket.updatedAt) : null;
 
         const displayId = (ticket as any).ticketId || `INFO-${ticket.id}`;
         const isClosed = ticket.status === 'solved';
@@ -146,22 +142,32 @@ export default async function TicketPage({ params }: TicketPageProps) {
                                         <div>
                                             <p className="text-xs text-gray-500">Created</p>
                                             <p className="text-sm text-gray-700">
-                                                {new Date(ticket.createdAt).toLocaleDateString()} at{' '}
-                                                {new Date(ticket.createdAt).toLocaleTimeString([], {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
+                                                {createdPH}
+                                                {/* {new Date(ticket.createdAt).toLocaleDateString()} at{' '} */}
+                                                {/* {new Date(ticket.createdAt).toLocaleTimeString([], { */}
+                                                {/*     hour: '2-digit', */}
+                                                {/*     minute: '2-digit' */}
+                                                {/* })} */}
                                             </p>
                                         </div>
-                                        {ticket.updatedAt && ticket.updatedAt.getTime() !== ticket.createdAt.getTime() && (
+                                        {/* {ticket.updatedAt && ticket.updatedAt.getTime() !== ticket.createdAt.getTime() && ( */}
+                                        {/*     <div> */}
+                                        {/*         <p className="text-xs text-gray-500">Last Updated</p> */}
+                                        {/*         <p className="text-sm text-gray-700"> */}
+                                        {/*             {new Date(ticket.updatedAt).toLocaleDateString()} at{' '} */}
+                                        {/*             {new Date(ticket.updatedAt).toLocaleTimeString([], { */}
+                                        {/*                 hour: '2-digit', */}
+                                        {/*                 minute: '2-digit' */}
+                                        {/*             })} */}
+                                        {/*         </p> */}
+                                        {/*     </div> */}
+                                        {/* )} */}
+
+                                        {updatedPH && ticket.updatedAt.getTime() !== ticket.createdAt.getTime() && (
                                             <div>
                                                 <p className="text-xs text-gray-500">Last Updated</p>
                                                 <p className="text-sm text-gray-700">
-                                                    {new Date(ticket.updatedAt).toLocaleDateString()} at{' '}
-                                                    {new Date(ticket.updatedAt).toLocaleTimeString([], {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}
+                                                    {updatedPH} {/* Use the formatted time here */}
                                                 </p>
                                             </div>
                                         )}
