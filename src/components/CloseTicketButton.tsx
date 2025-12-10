@@ -5,40 +5,40 @@ import { closeTicket } from '@/actions/ticket.actions';
 import { toast } from 'sonner';
 
 const CloseTicketButton = ({
-  ticketId,
-  isClosed,
+    ticketId,
+    isClosed,
 }: {
-  ticketId: number;
-  isClosed: boolean;
+    ticketId: number;
+    isClosed: boolean;
 }) => {
-  const initialState = {
-    success: false,
-    message: '',
-  };
+    const initialState = {
+        success: false,
+        message: '',
+    };
 
-  const [state, formAction] = useActionState(closeTicket, initialState);
+    const [state, formAction] = useActionState(closeTicket, initialState);
 
-  useEffect(() => {
-    if (state.success) {
-      toast.success(state.message);
-    } else if (state.message && !state.success) {
-      toast.error(state.message);
-    }
-  }, [state]);
+    useEffect(() => {
+        if (state.success) {
+            toast.success(state.message);
+        } else if (state.message && !state.success) {
+            toast.error(state.message);
+        }
+    }, [state]);
 
-  if (isClosed) return null;
+    if (isClosed) return null;
 
-  return (
-    <form action={formAction}>
-      <input type='hidden' name='ticketId' value={ticketId} />
-      <button
-        type='submit'
-        className='bg-red-500 text-white px-3 py-3 w-full rounded hover:bg-red-600 transition'
-      >
-        Close Ticket
-      </button>
-    </form>
-  );
+    return (
+        <form action={formAction}>
+            <input type='hidden' name='ticketId' value={ticketId} />
+            <button
+                type='submit'
+                className='bg-green-500 text-white px-3 py-3 w-full rounded hover:bg-green-600 transition'
+            >
+                Close Ticket
+            </button>
+        </form>
+    );
 };
 
 export default CloseTicketButton;

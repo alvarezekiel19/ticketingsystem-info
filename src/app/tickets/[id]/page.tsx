@@ -110,7 +110,7 @@ export default async function TicketPage({ params }: TicketPageProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Creator Info */}
                                 <div>
-                                    <p className="text-sm font-medium text-gray-700 mb-3">Created By</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-3">Created By:</p>
                                     <div className="flex items-center space-x-3">
                                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                                             <span className="text-blue-600 font-medium text-lg">
@@ -140,34 +140,16 @@ export default async function TicketPage({ params }: TicketPageProps) {
                                     <p className="text-sm font-medium text-gray-700 mb-2">Timeline</p>
                                     <div className="space-y-2">
                                         <div>
-                                            <p className="text-xs text-gray-500">Created</p>
+                                            <p className="text-xs text-gray-500">Created:</p>
                                             <p className="text-sm text-gray-700">
                                                 {createdPH}
-                                                {/* {new Date(ticket.createdAt).toLocaleDateString()} at{' '} */}
-                                                {/* {new Date(ticket.createdAt).toLocaleTimeString([], { */}
-                                                {/*     hour: '2-digit', */}
-                                                {/*     minute: '2-digit' */}
-                                                {/* })} */}
                                             </p>
                                         </div>
-                                        {/* {ticket.updatedAt && ticket.updatedAt.getTime() !== ticket.createdAt.getTime() && ( */}
-                                        {/*     <div> */}
-                                        {/*         <p className="text-xs text-gray-500">Last Updated</p> */}
-                                        {/*         <p className="text-sm text-gray-700"> */}
-                                        {/*             {new Date(ticket.updatedAt).toLocaleDateString()} at{' '} */}
-                                        {/*             {new Date(ticket.updatedAt).toLocaleTimeString([], { */}
-                                        {/*                 hour: '2-digit', */}
-                                        {/*                 minute: '2-digit' */}
-                                        {/*             })} */}
-                                        {/*         </p> */}
-                                        {/*     </div> */}
-                                        {/* )} */}
-
                                         {updatedPH && ticket.updatedAt.getTime() !== ticket.createdAt.getTime() && (
                                             <div>
-                                                <p className="text-xs text-gray-500">Last Updated</p>
+                                                <p className="text-xs text-gray-500">Last Updated:</p>
                                                 <p className="text-sm text-gray-700">
-                                                    {updatedPH} {/* Use the formatted time here */}
+                                                    {updatedPH}
                                                 </p>
                                             </div>
                                         )}
