@@ -14,8 +14,6 @@ const LogoutButton = () => {
                 redirect: false
             });
 
-            // Use window.location.origin for dynamic URL
-            // This works for both localhost and production
             window.location.href = `${window.location.origin}/`;
 
         } catch (error) {
