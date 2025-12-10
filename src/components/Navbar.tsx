@@ -62,18 +62,18 @@ const Navbar = () => {
                     </div>
 
                     {/* Desktop Navigation - Hidden on mobile */}
-                    <div className='hidden md:flex items-center space-x-6'>
+                    <div className='hidden md:flex items-center space-x-4'>
                         {session ? (
                             <>
                                 <Link
                                     href='/tickets/new'
-                                    className='text-gray-700 hover:text-blue-600 hover:underline transition px-3 py-2 rounded-md text-sm font-medium !no-underline'
+                                    className='text-gray-700 hover:text-blue-600 hover:transition px-3 py-2 rounded-md text-sm font-medium'
                                 >
                                     New Ticket
                                 </Link>
                                 <Link
                                     href='/tickets'
-                                    className='text-gray-700 hover:text-blue-600 hover:underline transition px-3 py-2 rounded-md text-sm font-medium !no-underline'
+                                    className='text-gray-700 hover:text-blue-600 hover:transition px-3 py-2 rounded-md text-sm font-medium'
                                 >
                                     My Tickets
                                 </Link>
@@ -82,7 +82,7 @@ const Navbar = () => {
                                 {(session.user as any)?.role === 'ADMIN' && (
                                     <Link
                                         href="/admin/dashboard"
-                                        className="text-amber-600 hover:text-blue-600 hover:underline transition px-3 py-2 rounded-md text-sm font-medium !no-underline"
+                                        className="text-amber-600 hover:text-blue-600 hover:transition px-3 py-2 rounded-md text-sm font-medium"
                                     >
                                         Admin Dashboard
                                     </Link>
