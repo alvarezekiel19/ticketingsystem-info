@@ -29,7 +29,7 @@ const LogoutButton = ({ className = '' }: LogoutButtonProps) => {
         <button
             onClick={handleLogout}
             disabled={isLoading}
-            className={`text-red-600 hover:text-red-800 hover:underline transition disabled:opacity-50 ${isLoading ? 'cursor-not-allowed' : ''} ${className}`}
+            className={`text-red-600 hover:text-red-800 hover:transition disabled:opacity-50 ${isLoading ? 'cursor-not-allowed' : ''} ${className}`}
         >
             {isLoading ? (
                 <span className="flex items-center">

@@ -62,7 +62,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Desktop Navigation - Hidden on mobile */}
-                    <div className='hidden md:flex items-center space-x-4'>
+                    <div className='hidden md:flex items-center space-x-6'>
                         {session ? (
                             <>
                                 <Link
