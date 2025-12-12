@@ -1,10 +1,10 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/current-user';
 import { prisma } from '@/db/prisma';
 import { logEvent } from '@/utils/sentry';
+import { revalidatePath } from 'next/cache';
 
 // Create new ticket
 export async function createTicket(
@@ -100,53 +100,60 @@ export async function getTicketById(id: string) {
     }
 }
 
-// Close Ticket
 export async function closeTicket(
-    prevState: { success: boolean; message: string },
+    prevState: any,
     formData: FormData
-): Promise<{ success: boolean; message: string }> {
-    const ticketId = Number(formData.get('ticketId'));
+) {
+    try {
+        const ticketId = formData.get('ticketId') as string;
+        const resolution = formData.get('resolution') as string;
 
-    if (!ticketId) {
-        logEvent('Missing ticket ID', 'ticket', {}, 'warning');
-        return { success: false, message: 'Ticket ID is Required' };
-    }
+        console.log('=== DEBUG closeTicket action ===');
+        console.log('Ticket ID:', ticketId);
+        console.log('Resolution from form:', resolution);
+        console.log('Resolution length:', resolution?.length);
+        console.log('Resolution trimmed:', resolution?.trim());
+        console.log('Is resolution empty?', !resolution || resolution.trim() === '');
 
-    const user = await getCurrentUser();
+        // Validate resolution
+        if (!resolution || resolution.trim() === '') {
+            console.log('VALIDATION FAILED: Resolution is empty');
+            return {
+                success: false,
+                message: 'Resolution message is required to close a ticket',
+            };
+        }
 
-    if (!user) {
-        logEvent('Missing user ID', 'ticket', {}, 'warning');
+        console.log('Updating database...');
+        const ticket = await prisma.ticket.update({
+            where: { id: parseInt(ticketId) },
+            data: {
+                status: 'solved',
+                resolution: resolution.trim(),
+                updatedAt: new Date(),
+            },
+        });
 
-        return { success: false, message: 'Unauthorized' };
-    }
+        console.log('Database update result:');
+        console.log('- Status:', ticket.status);
+        console.log('- Resolution saved:', ticket.resolution);
+        console.log('- Resolution length in DB:', ticket.resolution?.length);
 
-    const ticket = await prisma.ticket.findUnique({
-        where: { id: ticketId },
-    });
-
-    if (!ticket || ticket.userId !== user.id) {
-        logEvent(
-            'Unauthorized ticket close attempt',
-            'ticket',
-            { ticketId, userId: user.id },
-            'warning'
-        );
+        // Revalidate paths
+        revalidatePath('/tickets');
+        revalidatePath(`/tickets/${ticketId}`);
 
         return {
+            success: true,
+            message: 'Ticket closed successfully',
+        };
+    } catch (error) {
+        console.error('Error closing ticket:', error);
+        return {
             success: false,
-            message: 'You are not authorized to close this ticket',
+            message: 'Failed to close ticket',
         };
     }
-
-    await prisma.ticket.update({
-        where: { id: ticketId },
-        data: { status: 'solved' },
-    });
-
-    revalidatePath('/tickets');
-    revalidatePath(`/tickets/${ticketId}`);
-
-    return { success: true, message: 'Ticket closed successfully' };
 }
 
 

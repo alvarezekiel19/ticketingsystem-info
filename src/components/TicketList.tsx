@@ -1,5 +1,8 @@
+'use client';
+
 import { sql } from '@vercel/postgres';
 import TicketItem from './TicketItem';
+import { useState, useEffect } from 'react';
 
 interface Ticket {
     id: string;
@@ -39,25 +42,44 @@ async function getTickets(query = '') {
 interface TicketListProps {
     query: string;
 }
+export default function TicketList() {
+    const [tickets, setTickets] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshKey, setRefreshKey] = useState(0);
 
-export default async function TicketList({ query }: TicketListProps) {
-    const tickets = await getTickets(query);
+    useEffect(() => {
+        const fetchTickets = async () => {
+            try {
+                const response = await fetch('/api/tickets');
+                const data = await response.json();
+                setTickets(data);
+            } catch (error) {
+                console.error('Error fetching tickets:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTickets();
+    }, [refreshKey]);
+
+    const handleTicketUpdate = () => {
+        setRefreshKey(prev => prev + 1);
+    };
+
+    if (loading) {
+        return <div className="text-center py-8">Loading tickets...</div>;
+    }
 
     return (
-        <div>
-            {tickets.length === 0 ? (
-                <div className="text-center py-8">
-                    <p className="text-gray-500">
-                        {query ? `No tickets found for "${query}"` : 'No tickets found'}
-                    </p>
-                </div>
-            ) : (
-                <div className="grid gap-4">
-                    {tickets.map((ticket) => (
-                        <TicketItem key={ticket.id} ticket={ticket} />
-                    ))}
-                </div>
-            )}
+        <div className="space-y-4">
+            {tickets.map((ticket) => (
+                <TicketItem
+                    key={ticket.id}
+                    ticket={ticket}
+                    onUpdate={handleTicketUpdate}
+                />
+            ))}
         </div>
     );
 }

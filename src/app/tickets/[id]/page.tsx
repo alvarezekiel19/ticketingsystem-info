@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import CloseTicketButton from '@/components/CloseTicketButton';
 import { prisma } from '@/db/prisma';
 import { formatToPHTime } from '@/lib/timezone';
+import ReactMarkdown from 'react-markdown';
 
 interface TicketPageProps {
     params: {
@@ -15,8 +16,20 @@ export default async function TicketPage({ params }: TicketPageProps) {
 
     try {
         const ticket = await prisma.ticket.findUnique({
-            where: { id: parseInt(id) }
+            where: { id: parseInt(id) },
+            select: {
+                id: true,
+                subject: true,
+                description: true,
+                status: true,
+                priority: true,
+                resolution: true,
+                createdAt: true,
+                updatedAt: true,
+                userId: true,
+            }
         });
+
 
         if (!ticket) {
             notFound();
@@ -43,6 +56,24 @@ export default async function TicketPage({ params }: TicketPageProps) {
         const userName = user?.name || user?.email || 'Unknown User';
         const userEmail = user?.email;
         const userInitial = userName.charAt(0).toUpperCase();
+
+        const markdownComponents = {
+            h1: ({ node, ...props }: any) => <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />,
+            h2: ({ node, ...props }: any) => <h2 className="text-xl font-bold mt-3 mb-2" {...props} />,
+            h3: ({ node, ...props }: any) => <h3 className="text-lg font-bold mt-2 mb-1" {...props} />,
+            p: ({ node, ...props }: any) => <p className="mb-2" {...props} />,
+            ul: ({ node, ...props }: any) => <ul className="list-disc ml-4 mb-2" {...props} />,
+            ol: ({ node, ...props }: any) => <ol className="list-decimal ml-4 mb-2" {...props} />,
+            li: ({ node, ...props }: any) => <li className="mb-1" {...props} />,
+            code: ({ node, inline, ...props }: any) =>
+                inline
+                    ? <code className="bg-gray-100 px-1 rounded text-sm font-mono" {...props} />
+                    : <pre className="bg-gray-100 p-2 rounded my-2 overflow-x-auto"><code className="text-sm font-mono" {...props} /></pre>,
+            blockquote: ({ node, ...props }: any) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-2" {...props} />,
+            a: ({ node, ...props }: any) => <a className="text-blue-600 hover:underline" {...props} />,
+            strong: ({ node, ...props }: any) => <strong className="font-bold" {...props} />,
+            em: ({ node, ...props }: any) => <em className="italic" {...props} />,
+        };
 
         return (
             <div className="min-h-screen bg-blue-50 p-8">
@@ -97,6 +128,8 @@ export default async function TicketPage({ params }: TicketPageProps) {
                             />
                         </div>
 
+
+
                         {/* Description */}
                         <div className="prose max-w-none mb-8">
                             <h3 className="text-lg font-semibold text-gray-700 mb-3">Description</h3>
@@ -104,6 +137,27 @@ export default async function TicketPage({ params }: TicketPageProps) {
                                 {ticket.description}
                             </p>
                         </div>
+
+                        {/* Resolution Display */}
+                        {ticket.status === 'solved' && ticket.resolution && ticket.resolution.trim() !== '' && (
+                            <div className="mb-8 p-5 bg-green-50 border border-green-200 rounded-lg">
+                                <h3 className="font-semibold text-green-800 text-lg mb-3 flex items-center">
+                                    <span className="mr-2">✅</span> Resolution
+                                </h3>
+                                <div className="bg-white p-4 rounded border border-green-100">
+                                    <div className="text-gray-700">
+                                        <ReactMarkdown components={markdownComponents}>
+                                            {ticket.resolution}
+                                        </ReactMarkdown>
+                                    </div>
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-green-200">
+                                    <p className="text-sm text-green-600">
+                                        Ticket was solved on {updatedPH || formatToPHTime(ticket.updatedAt)}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* User Information */}
                         <div className="mt-8 pt-6 border-t border-gray-200">
