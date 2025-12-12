@@ -164,6 +164,15 @@ const CloseTicketButton = ({
                                     >
                                         {`</>`}
                                     </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => addFormatting('>', '')}
+                                        className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100 font-mono"
+                                        title="Code"
+                                    >
+                                        " "
+                                    </button>
+
                                 </div>
 
                                 {/* Textarea or Preview */}
