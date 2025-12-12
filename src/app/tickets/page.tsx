@@ -14,26 +14,25 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
         let tickets;
 
         if (query) {
-            const allTickets =
-                await sql`SELECT * FROM "Ticket" ORDER BY "createdAt" DESC`;
-            tickets = allTickets.rows.filter((ticket) => {
-                // Search in multiple possible fields
-                const searchableText = [
-                    ticket.subject,
-                    ticket.name,
-                    ticket.description,
-                    ticket.content,
-                    ticket.body,
-                ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase();
-
-                return searchableText.includes(query.toLowerCase());
-            });
+            const searchTerm = `%${query}%`;
+            const searchResult = await sql`
+                SELECT * FROM "Ticket" 
+                WHERE 
+                    LOWER("subject") LIKE LOWER(${searchTerm}) OR
+                    LOWER("description") LIKE LOWER(${searchTerm}) OR
+                    LOWER("status") LIKE LOWER(${searchTerm}) OR
+                    LOWER("priority") LIKE LOWER(${searchTerm})
+                ORDER BY "createdAt" DESC
+                LIMIT 100
+            `;
+            tickets = searchResult.rows;
         } else {
-            const result =
-                await sql`SELECT * FROM "Ticket" ORDER BY "createdAt" DESC`;
+            // Simple parameterized query for all tickets
+            const result = await sql`
+                SELECT * FROM "Ticket" 
+                ORDER BY "createdAt" DESC 
+                LIMIT 100
+            `;
             tickets = result.rows;
         }
 
