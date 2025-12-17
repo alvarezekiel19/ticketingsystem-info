@@ -6,9 +6,11 @@ import { toast } from 'sonner';
 
 const CloseTicketButton = ({
     ticketId,
+    ticketUuid,
     isClosed,
 }: {
     ticketId: number;
+    ticketUuid?: string;
     isClosed: boolean;
 }) => {
     const [showResolutionModal, setShowResolutionModal] = useState(false);
@@ -52,6 +54,9 @@ const CloseTicketButton = ({
         try {
             const formData = new FormData();
             formData.append('ticketId', ticketId.toString());
+            if (ticketUuid) {
+                formData.append('ticketId', ticketUuid);
+            }
             formData.append('resolution', resolution);
 
             const result = await closeTicket(null, formData);
@@ -61,6 +66,7 @@ const CloseTicketButton = ({
                 setShowResolutionModal(false);
                 setResolution('');
                 setShowPreview(false);
+                window.location.reload();
             } else {
                 toast.error(result.message);
             }

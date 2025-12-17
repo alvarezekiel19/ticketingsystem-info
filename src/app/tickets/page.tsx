@@ -58,7 +58,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
                         <div className="space-y-4">
                             {tickets.map((ticket) => (
                                 <div
-                                    key={ticket.id}
+                                    key={ticket.uuid}
                                     className="bg-white rounded-lg shadow-md p-6"
                                 >
                                     <div className="flex justify-between items-start">
@@ -111,7 +111,7 @@ export default async function TicketsPage({ searchParams }: TicketsPageProps) {
                                             </div>
                                         </div>
                                         <a
-                                            href={`/tickets/${ticket.id}`}
+                                            href={`/tickets/${ticket.uuid}`}
                                             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200"
                                         >
                                             View

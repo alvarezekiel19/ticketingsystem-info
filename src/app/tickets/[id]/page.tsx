@@ -11,24 +11,73 @@ interface TicketPageProps {
     };
 }
 
+// Helper function to check if string is UUID
+function isUUID(id: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
+
 export default async function TicketPage({ params }: TicketPageProps) {
     const { id } = await params;
 
     try {
-        const ticket = await prisma.ticket.findUnique({
-            where: { id: parseInt(id) },
-            select: {
-                id: true,
-                subject: true,
-                description: true,
-                status: true,
-                priority: true,
-                resolution: true,
-                createdAt: true,
-                updatedAt: true,
-                userId: true,
+
+        let ticket;
+
+        if (isUUID(id)) {
+            ticket = await prisma.ticket.findUnique({
+                where: { uuid: id },
+                select: {
+                    id: true,
+                    uuid: true,
+                    subject: true,
+                    description: true,
+                    status: true,
+                    priority: true,
+                    resolution: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    userId: true,
+                },
+            });
+        } else {
+            // fallback to numeric ID (for backward compatibility during transition)
+            const numericId = parseInt(id);
+            if (isNaN(numericId)) {
+                notFound();
             }
-        });
+
+            ticket = await prisma.ticket.findUnique({
+                where: { id: numericId },
+                select: {
+                    id: true,
+                    uuid: true,
+                    subject: true,
+                    description: true,
+                    status: true,
+                    priority: true,
+                    resolution: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    userId: true,
+                }
+            });
+        }
+
+        // const ticket = await prisma.ticket.findUnique({
+        //     where: { id: parseInt(id) },
+        //     select: {
+        //         id: true,
+        //         uuid: true,
+        //         subject: true,
+        //         description: true,
+        //         status: true,
+        //         priority: true,
+        //         resolution: true,
+        //         createdAt: true,
+        //         updatedAt: true,
+        //         userId: true,
+        //     }
+        // });
 
 
         if (!ticket) {

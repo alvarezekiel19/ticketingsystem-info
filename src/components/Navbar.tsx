@@ -57,7 +57,7 @@ const Navbar = () => {
                     {/* Logo/Brand */}
                     <div className="flex-shrink-0">
                         <Link href='/' className='text-xl font-bold text-blue-600 hover:text-blue-700 transition'>
-                            Informatics | Ticket System
+                            Ticket System
                         </Link>
                     </div>
 
