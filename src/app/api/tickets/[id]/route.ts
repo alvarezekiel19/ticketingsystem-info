@@ -2,27 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/db/prisma';
 
+// Helper function to check if string is UUID
+function isUUID(id: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
+
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> } // Updated for Next.js 15
 ) {
     try {
+        // Await the params Promise
+        const { id } = await context.params;
+
         const session = await getServerSession();
         if (!session?.user?.email) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // check if param is UUID or numeric ID
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
-
         let ticket;
 
-        if (isUUID) {
-            // lookup UUID
+        // Check if param is UUID or numeric ID
+        if (isUUID(id)) {
+            // Lookup by UUID
             ticket = await prisma.ticket.findUnique({
-                where: { uuid: params.id },
+                where: { uuid: id },
                 include: {
-                    comments: {
+                    user: true,
+                    description: {
                         include: {
                             user: true,
                         },
@@ -33,8 +40,8 @@ export async function GET(
                 },
             });
         } else {
-            // fallback to numeric ID (for backward compatibility)
-            const numericId = parseInt(params.id);
+            // Fallback to numeric ID (for backward compatibility)
+            const numericId = parseInt(id);
             if (isNaN(numericId)) {
                 return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });
             }
@@ -42,7 +49,8 @@ export async function GET(
             ticket = await prisma.ticket.findUnique({
                 where: { id: numericId },
                 include: {
-                    comments: {
+                    user: true,
+                    description: {
                         include: {
                             user: true,
                         },
@@ -70,26 +78,122 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
-        // Check if ID is UUID or numeric
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id);
+        // Await the params Promise
+        const { id } = await context.params;
+
+        const session = await getServerSession();
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         const body = await request.json();
+        const { status, resolution } = body;
 
-        // Determine where clause based on ID type
-        const whereClause = isUUID
-            ? { uuid: params.id }
-            : { id: parseInt(params.id) };
+        let whereCondition;
+
+        // Check if ID is UUID or numeric
+        if (isUUID(id)) {
+            whereCondition = { uuid: id };
+        } else {
+            const numericId = parseInt(id);
+            if (isNaN(numericId)) {
+                return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });
+            }
+            whereCondition = { id: numericId };
+        }
+
+        // Check if user owns the ticket
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        });
+
+        const existingTicket = await prisma.ticket.findUnique({
+            where: whereCondition,
+        });
+
+        if (!existingTicket) {
+            return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+        }
+
+        if (existingTicket.userId !== user?.id) {
+            return NextResponse.json({ error: 'Unauthorized to update this ticket' }, { status: 403 });
+        }
 
         const updatedTicket = await prisma.ticket.update({
-            where: whereClause,
-            data: body,
+            where: whereCondition,
+            data: {
+                ...(status && { status }),
+                ...(resolution && { resolution }),
+                updatedAt: new Date(),
+            },
         });
 
         return NextResponse.json(updatedTicket);
     } catch (error) {
-        // ... error handling
+        console.error('Error updating ticket:', error);
+        return NextResponse.json(
+            { error: 'Error updating ticket' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    context: { params: Promise<{ id: string }> }
+) {
+    try {
+        // Await the params Promise
+        const { id } = await context.params;
+
+        const session = await getServerSession();
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        let whereCondition;
+
+        // Check if ID is UUID or numeric
+        if (isUUID(id)) {
+            whereCondition = { uuid: id };
+        } else {
+            const numericId = parseInt(id);
+            if (isNaN(numericId)) {
+                return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });
+            }
+            whereCondition = { id: numericId };
+        }
+
+        // Check if user owns the ticket
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        });
+
+        const existingTicket = await prisma.ticket.findUnique({
+            where: whereCondition,
+        });
+
+        if (!existingTicket) {
+            return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+        }
+
+        if (existingTicket.userId !== user?.id) {
+            return NextResponse.json({ error: 'Unauthorized to delete this ticket' }, { status: 403 });
+        }
+
+        await prisma.ticket.delete({
+            where: whereCondition,
+        });
+
+        return NextResponse.json({ message: 'Ticket deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting ticket:', error);
+        return NextResponse.json(
+            { error: 'Error deleting ticket' },
+            { status: 500 }
+        );
     }
 }

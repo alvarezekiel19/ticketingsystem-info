@@ -55,7 +55,7 @@ const CloseTicketButton = ({
             const formData = new FormData();
             formData.append('ticketId', ticketId.toString());
             if (ticketUuid) {
-                formData.append('ticketId', ticketUuid);
+                formData.append('ticketUuid', ticketUuid); // FIXED: Changed key to 'ticketUuid'
             }
             formData.append('resolution', resolution);
 
@@ -93,6 +93,11 @@ const CloseTicketButton = ({
                 <div className="fixed inset-0 backdrop-blur backdrop-brightness-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-2xl shadow-2xl">
                         <h2 className="text-xl font-bold mb-3">Close Ticket #{ticketId}</h2>
+                        {ticketUuid && (
+                            <p className="text-xs text-gray-500 mb-2">
+                                UUID: {ticketUuid.substring(0, 8)}...
+                            </p>
+                        )}
                         <p className="mb-4 text-gray-600 text-sm">
                             Please provide resolution details before closing.
                         </p>
@@ -174,11 +179,10 @@ const CloseTicketButton = ({
                                         type="button"
                                         onClick={() => addFormatting('>', '')}
                                         className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100 font-mono"
-                                        title="Code"
+                                        title="Quote"
                                     >
-                                        " "
+                                        "
                                     </button>
-
                                 </div>
 
                                 {/* Textarea or Preview */}

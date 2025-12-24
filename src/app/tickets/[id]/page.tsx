@@ -5,22 +5,19 @@ import { prisma } from '@/db/prisma';
 import { formatToPHTime } from '@/lib/timezone';
 import ReactMarkdown from 'react-markdown';
 
-interface TicketPageProps {
-    params: {
-        id: string;
-    };
-}
-
 // Helper function to check if string is UUID
 function isUUID(id: string): boolean {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 }
 
-export default async function TicketPage({ params }: TicketPageProps) {
-    const { id } = await params;
+export default async function TicketPage({
+    params
+}: {
+    params: Promise<{ id: string }> // Updated for Next.js 16
+}) {
+    const { id } = await params; // Await the params Promise
 
     try {
-
         let ticket;
 
         if (isUUID(id)) {
@@ -62,23 +59,6 @@ export default async function TicketPage({ params }: TicketPageProps) {
                 }
             });
         }
-
-        // const ticket = await prisma.ticket.findUnique({
-        //     where: { id: parseInt(id) },
-        //     select: {
-        //         id: true,
-        //         uuid: true,
-        //         subject: true,
-        //         description: true,
-        //         status: true,
-        //         priority: true,
-        //         resolution: true,
-        //         createdAt: true,
-        //         updatedAt: true,
-        //         userId: true,
-        //     }
-        // });
-
 
         if (!ticket) {
             notFound();
@@ -173,11 +153,10 @@ export default async function TicketPage({ params }: TicketPageProps) {
 
                             <CloseTicketButton
                                 ticketId={ticket.id}
+                                ticketUuid={ticket.uuid} // Add this line for UUID support
                                 isClosed={isClosed}
                             />
                         </div>
-
-
 
                         {/* Description */}
                         <div className="prose max-w-none mb-8">
