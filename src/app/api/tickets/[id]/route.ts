@@ -9,7 +9,7 @@ function isUUID(id: string): boolean {
 
 export async function GET(
     request: NextRequest,
-    context: { params: Promise<{ id: string }> } // Updated for Next.js 15
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         // Await the params Promise
@@ -28,15 +28,15 @@ export async function GET(
             ticket = await prisma.ticket.findUnique({
                 where: { uuid: id },
                 include: {
-                    user: true,
-                    description: {
-                        include: {
-                            user: true,
-                        },
-                        orderBy: {
-                            createdAt: 'desc',
-                        },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
                     },
+                    // Remove the incorrect 'description' include
+                    // Just select the description field directly (it's already included)
                 },
             });
         } else {
@@ -49,14 +49,12 @@ export async function GET(
             ticket = await prisma.ticket.findUnique({
                 where: { id: numericId },
                 include: {
-                    user: true,
-                    description: {
-                        include: {
-                            user: true,
-                        },
-                        orderBy: {
-                            createdAt: 'desc',
-                        },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
                     },
                 },
             });
